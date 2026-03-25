@@ -4,5 +4,41 @@
         <meta charset="UTF-8">
         <title>Features Tracking for Web-based Argumented Reality</title>
         <link rel="stylesheet" href="style.css">
+
+        <script async src="js.opencv.js"></script>
+
+        <script src="js/aframe.min.js"></script>
+        <script src="js/aframe-ar/js"></script>
     </head>
+
+    <body>
+
+        <h2>AR Feature Tracking Web-Based</h2>
+
+        <input type="file" id="imageInput" accept="image/*">
+
+        <br><br>
+        <button onclick="generateFeatures()">Generate Fatures </button>
+        <button onclick="saveImage()">Save Image</button>
+
+        <br><br>
+        <canvas id="canvasOutput"></canvas>
+
+        <img id="imgSrc" hidden>
+
+        <hr>
+
+        <!--AR Scene-->
+        <a-Scene embedded arjs>
+            <a-marker preset="hiro">
+                <!--3D Object-->
+                <a-box position="0 0.5 0" material="'color: red;"></a-box>
+            </a-marker>
+
+            <!--Camera-->
+            <a-entity camera></a-entity>
+        </a-Scene>
+
+        <script src="script.js"></script>
+    </body>
 </html>
