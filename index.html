@@ -1,44 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Features Tracking for Web-based Argumented Reality</title>
-        <link rel="stylesheet" href="style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Feature Tracking - Lab 1</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://unpkg.com/@techstark/opencv-js@4.7.0/dist/opencv.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
 
-        <script async src="js.opencv.js"></script>
+    <header>
+        <h2>UTM - Real-Time Computer Graphics</h2>
+        <p>Lab Assessment 1: Feature-based Marker Tracking</p>
+    </header>
 
-        <script src="js/aframe.min.js"></script>
-        <script src="js/aframe-ar/js"></script>
-    </head>
+    <main>
+        <div class="controls">
+            <input type="file" id="uploadBtn" accept="image/*">
+            
+            <button id="generateBtn">Generate Features</button>
+            
+            <button id="saveBtn">Save Marker</button>
+        </div>
 
-    <body>
+        <div class="display-container">
+            <div class="box">
+                <h4>1. RGB Input</h4>
+                <img id="inputImage" src="#" alt="Upload an image" style="max-width: 300px; display: none;">
+                <video id="webcam" width="300" height="225" autoplay playsinline></video>
+            </div>
 
-        <h2>AR Feature Tracking Web-Based</h2>
+            <div class="box">
+                <h4>2. Processed Features</h4>
+                <canvas id="canvasOutput" width="300" height="225"></canvas>
+            </div>
+        </div>
 
-        <input type="file" id="imageInput" accept="image/*">
+        <div id="ar-container">
+            <h4>3. AR Scene (3D Object Overlay)</h4>
+            </div>
+    </main>
 
-        <br><br>
-        <button onclick="generateFeatures()">Generate Fatures </button>
-        <button onclick="saveImage()">Save Image</button>
+    <script src="js/tracking-logic.js"></script>
+    <script src="js/ar-render.js"></script>
+    <script src="js/main.js"></script>
 
-        <br><br>
-        <canvas id="canvasOutput"></canvas>
-
-        <img id="imgSrc" hidden>
-
-        <hr>
-
-        <!--AR Scene-->
-        <a-Scene embedded arjs>
-            <a-marker preset="hiro">
-                <!--3D Object-->
-                <a-box position="0 0.5 0" material="'color: red;"></a-box>
-            </a-marker>
-
-            <!--Camera-->
-            <a-entity camera></a-entity>
-        </a-Scene>
-
-        <script src="script.js"></script>
-    </body>
+</body>
 </html>
