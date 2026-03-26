@@ -1,89 +1,113 @@
-/* General Layout */
+/* General Page Styling */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f4f9;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f0f2f5;
     margin: 0;
     padding: 20px;
-    color: #333;
-    text-align: center;
-}
-
-header {
-    border-bottom: 2px solid #0056b3;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-}
-
-/* UI Controls Section */
-.controls {
-    background: #ffffff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #1a365d;
+    margin-bottom: 10px;
+}
+
+/* 1. UI Controls Section */
+.controls {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    display: flex;
     gap: 15px;
     align-items: center;
 }
 
 button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
+    padding: 12px 24px;
+    font-weight: bold;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
 }
 
-button:hover {
-    background-color: #0056b3;
+#generateBtn {
+    background-color: #3182ce;
+    color: white;
 }
 
-input[type="file"] {
-    border: 1px solid #ddd;
-    padding: 5px;
-    border-radius: 4px;
+#generateBtn:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
 }
 
-/* Display Containers */
-.display-container {
+#saveBtn {
+    background-color: #38a169;
+    color: white;
+}
+
+button:hover:not(:disabled) {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+/* 2. Container for Side-by-Side Images */
+.container {
     display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
+    justify-content: center;
     gap: 20px;
+    width: 100%;
+    max-width: 1000px;
     margin-bottom: 30px;
 }
 
 .box {
-    background: #fff;
+    flex: 1;
+    background: white;
     padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    min-width: 320px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
 }
 
-canvas, video, img {
-    border: 2px solid #333;
-    border-radius: 4px;
-    background-color: #000;
-}
-
-/* AR Scene Area */
-#ar-container {
-    margin-top: 20px;
-    padding: 20px;
-    background: #e9ecef;
-    border-radius: 8px;
-    border: 2px dashed #007bff;
-    min-height: 400px;
-    position: relative;
-}
-
-h4 {
+.box h3 {
     margin-top: 0;
-    color: #0056b3;
-    text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
+    color: #2d3748;
+}
+
+/* Image and Canvas display */
+canvas, #inputImage {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+    background-color: #000;
+    border-radius: 4px;
+    display: block;
+}
+
+/* 3. AR Viewport Section */
+#ar-viewport {
+    width: 100%;
+    max-width: 1000px;
+    background: #ffffff;
+    border: 2px dashed #3182ce;
+    border-radius: 12px;
+    padding: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+#ar-viewport h3 {
+    text-align: center;
+    color: #3182ce;
+}
+
+/* Ensures the Three.js canvas fits inside the box */
+#ar-viewport canvas {
+    background-color: transparent; /* Allows you to see the UI behind if needed */
 }

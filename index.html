@@ -2,50 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Feature Tracking - Lab 1</title>
+    <title>UTM AR Lab - Feature Tracking</title>
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://unpkg.com/@techstark/opencv-js@4.7.0/dist/opencv.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
+    <h1>Feature-based Marker Tracking</h1>
+    
+    <div class="controls">
+        <input type="file" id="uploadBtn" accept="image/*">
+        <button id="generateBtn" disabled>Loading OpenCV...</button>
+        <button id="saveBtn">Save Marker</button>
+    </div>
 
-    <header>
-        <h2>UTM - Real-Time Computer Graphics</h2>
-        <p>Lab Assessment 1: Feature-based Marker Tracking</p>
-    </header>
-
-    <main>
-        <div class="controls">
-            <input type="file" id="uploadBtn" accept="image/*">
-            
-            <button id="generateBtn">Generate Features</button>
-            
-            <button id="saveBtn">Save Marker</button>
+    <div class="container">
+        <div class="box">
+            <h3>1. RGB Input</h3>
+            <img id="inputImage" style="max-width: 100%; display:none;">
+            <canvas id="hiddenCanvas" style="display:none;"></canvas>
         </div>
-
-        <div class="display-container">
-            <div class="box">
-                <h4>1. RGB Input</h4>
-                <img id="inputImage" src="#" alt="Upload an image" style="max-width: 300px; display: none;">
-                <video id="webcam" width="300" height="225" autoplay playsinline></video>
-            </div>
-
-            <div class="box">
-                <h4>2. Processed Features</h4>
-                <canvas id="canvasOutput" width="300" height="225"></canvas>
-            </div>
+        <div class="box">
+            <h3>2. Grayscale & Features</h3>
+            <canvas id="canvasOutput"></canvas>
         </div>
+    </div>
 
-        <div id="ar-container">
-            <h4>3. AR Scene (3D Object Overlay)</h4>
-            </div>
-    </main>
+    <div id="ar-viewport">
+        <h3>3. AR Scene (3D Object)</h3>
+        </div>
 
     <script src="js/tracking-logic.js"></script>
     <script src="js/ar-render.js"></script>
     <script src="js/main.js"></script>
-
 </body>
 </html>

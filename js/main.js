@@ -1,19 +1,25 @@
-document.getElementById('uploadBtn').addEventListener('change', function(e) {
-    const imgElement = document.getElementById('inputImage');
-    imgElement.src = URL.createObjectURL(e.target.files[0]);
-});
+// Check if OpenCV is ready
+cv['onRuntimeInitialized'] = () => {
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = false;
+    btn.innerText = "Generate Features";
+    console.log("OpenCV Ready");
+};
+
+document.getElementById('uploadBtn').onchange = function(e) {
+    let img = document.getElementById('inputImage');
+    img.src = URL.createObjectURL(e.target.files[0]);
+    img.onload = () => img.style.display = "block";
+};
 
 document.getElementById('generateBtn').onclick = function() {
-    // Execute the feature extraction [cite: 37]
-    generateFeatures('inputImage', 'canvasOutput');
-    // Start the AR overlay [cite: 25]
-    initARScene();
+    processImage('inputImage', 'canvasOutput');
+    if (!scene) initAR(); // Start 3D scene
 };
 
 document.getElementById('saveBtn').onclick = function() {
-    const canvas = document.getElementById('canvasOutput');
     const link = document.createElement('a');
-    link.download = 'ar-marker.png'; // Acceptable format [cite: 39]
-    link.href = canvas.toDataURL();
+    link.download = 'marker.png';
+    link.href = document.getElementById('canvasOutput').toDataURL();
     link.click();
 };
