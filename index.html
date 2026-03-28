@@ -7,11 +7,13 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- A-FRAME-->
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar.js"></script>
+    <!--Three.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r120/three.js"></script>
 
-    <!-- AR.js -->
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <!--Ar.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.2.2/aframe-ar.min.js"></script>
+
+
 </head>
 
 <body>
@@ -19,9 +21,6 @@
 
         <h1>AR Feature-based Marker Tracker</h1>
         <p id="status">Loading OpenCV...</p>
-        <p id="warning" style="color:#c0392b;font-size:0.85em;display:none;">
-            ⚠️ Camera requires HTTPS or localhost. Open via a local server, not <code>file://</code>.
-            Run: <code>python -m http.server 8000</code> then visit <code>http://localhost:8000</code>
         </p>
 
         <!-- Controls -->
@@ -89,5 +88,6 @@
 
      <!-- JS LAST -->
     <script src="script.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
