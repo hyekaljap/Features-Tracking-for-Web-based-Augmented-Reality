@@ -1,11 +1,3 @@
-/**
- * main.js — AR Scene Controller
- *
- * Uses A-Frame + AR.js (injected on demand) so the camera ONLY starts
- * when the user clicks "Start Camera", not on page load.
- *
- * Pattern is embedded as a Blob URL — no CORS/file:// errors.
- */
 
 // ── Embedded marker.patt ─────────────────────────────────────────────────────
 const MARKER_PATT = `220 227 227 231 239 252 240 133 247 255 255 254 255 255 244 255
@@ -218,7 +210,7 @@ const MARKER_PATT = `220 227 227 231 239 252 240 133 247 255 255 254 255 255 244
   const placeholder = document.getElementById('arPlaceholder');
   const arWrap   = document.getElementById('arCanvas');
 
-  // ── Build the a-scene HTML string ──────────────────────────────────────────
+  //Build the a-scene HTML string 
   function buildScene() {
     return `
       <a-scene
@@ -236,41 +228,13 @@ const MARKER_PATT = `220 227 227 231 239 252 240 133 247 255 255 254 255 255 244
             width="0.8" height="0.8" depth="0.8"
             color="#00FFB2"
             material="metalness:0.4; roughness:0.3"
-            animation="property:rotation; to:0 360 0; loop:true; dur:3000; easing:linear">
           </a-box>
-
-          <!-- Sphere -->
-          <a-sphere id="ar-sphere"
-            position="0 0.5 0" radius="0.45"
-            color="#FF4D6D" visible="false"
-            material="metalness:0.2; roughness:0.5"
-            animation="property:position; to:0 1 0; dir:alternate; loop:true; dur:1400; easing:easeInOutSine">
-          </a-sphere>
-
-          <!-- Cone -->
-          <a-cone id="ar-cone"
-            position="0 0.5 0"
-            radius-bottom="0.45" height="0.9"
-            color="#FFD166" visible="false"
-            material="metalness:0.1; roughness:0.6"
-            animation="property:rotation; to:0 360 0; loop:true; dur:2500; easing:linear">
-          </a-cone>
-
-          <!-- Torus -->
-          <a-torus id="ar-torus"
-            position="0 0.4 0"
-            radius="0.4" radius-tubular="0.1"
-            color="#C77DFF" visible="false"
-            material="metalness:0.5; roughness:0.3"
-            animation="property:rotation; from:0 0 0; to:360 720 0; loop:true; dur:4000; easing:linear">
-          </a-torus>
-
         </a-marker>
         <a-entity camera></a-entity>
       </a-scene>`;
   }
 
-  // ── Start Camera ────────────────────────────────────────────────────────────
+  // Start Camera 
   if (startBtn) {
     startBtn.addEventListener('click', function () {
       if (sceneInjected) return;
@@ -301,7 +265,7 @@ const MARKER_PATT = `220 227 227 231 239 252 240 133 247 255 255 254 255 255 244
         // Wire shape override buttons now that scene exists
         document.querySelectorAll('.ovr-btn').forEach(function (btn) {
           btn.addEventListener('click', function () {
-            const all = ['ar-box','ar-sphere','ar-cone','ar-torus'];
+            const all = ['ar-box'];
             all.forEach(function (id) {
               const el = document.getElementById(id);
               if (el) el.setAttribute('visible', id === btn.dataset.shape);
@@ -324,7 +288,7 @@ const MARKER_PATT = `220 227 227 231 239 252 240 133 247 255 255 254 255 255 244
     });
   }
 
-  // ── Stop Camera ─────────────────────────────────────────────────────────────
+  //Stop Camera 
   if (stopBtn) {
     stopBtn.addEventListener('click', function () {
       // Stop all webcam tracks first

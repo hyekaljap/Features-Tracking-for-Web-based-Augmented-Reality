@@ -1,7 +1,7 @@
 let cvReady = false;
 let src     = null;
 
-// ── OpenCV ready ──────────────────────────────────────────────────────────────
+// OpenCV ready 
 function onOpenCvReady() {
   cvReady = true;
   setStatus('OpenCV ready — upload an image.', 'ok');
@@ -19,7 +19,7 @@ function onOpenCvReady() {
   }
 }
 
-// ── Status helper ─────────────────────────────────────────────────────────────
+//  Status helper 
 function setStatus(msg, ledClass) {
   const el  = document.getElementById('status');
   const led = document.getElementById('statusLed');
@@ -27,7 +27,7 @@ function setStatus(msg, ledClass) {
   if (led) led.className = 'status-led' + (ledClass ? ' ' + ledClass : '');
 }
 
-// ── File upload ───────────────────────────────────────────────────────────────
+//  File upload 
 document.getElementById('fileInput').addEventListener('change', function (e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -61,7 +61,7 @@ document.getElementById('fileInput').addEventListener('change', function (e) {
   reader.readAsDataURL(file);
 });
 
-// ── Generate Features ─────────────────────────────────────────────────────────
+//Generate Features
 document.getElementById('generateBtn').addEventListener('click', function () {
   if (!cvReady) { alert('OpenCV is still loading — please wait.'); return; }
   if (!src)     { alert('Upload an image first!'); return; }
@@ -103,7 +103,7 @@ document.getElementById('generateBtn').addEventListener('click', function () {
   output.delete(); mask.delete();
 });
 
-// ── Save buttons ──────────────────────────────────────────────────────────────
+//  Save buttons 
 function saveCanvas(id, filename) {
   const c = document.getElementById(id);
   if (!c || c.width === 0) { alert('Nothing to save — run Generate first.'); return; }
