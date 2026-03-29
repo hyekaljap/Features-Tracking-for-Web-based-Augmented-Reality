@@ -1,118 +1,116 @@
 let cvReady = false;
-let src = null;
-var orb, refGray;
-var refKeyPts;
-var refDescr;
-var corners = [];
-var initialized;
+let src     = null;
 
-// Warn user if running from file:// (camera + CORS won't work)
-if (location.protocol === 'file:') {
-    const w = document.getElementById('warning');
-    if (w) w.style.display = 'block';
-}
-
-
-function createMarkerBlobURL(data) {
-    const blob = new Blob([data], { type: 'text/plain' });
-    return URL.createObjectURL(blob);
-}
-
-// GLOBAL save function
-window.saveImage = function(canvasId, filename) {
-    let canvas = document.getElementById(canvasId);
-    if (!canvas) { alert("Canvas not found!"); return; }
-    let link = document.createElement("a");
-    link.download = filename;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-};
-
-// OpenCV ready
+// ── OpenCV ready ──────────────────────────────────────────────────────────────
 function onOpenCvReady() {
-    cvReady = true;
-    document.getElementById("status").innerText = "OpenCV Ready! Upload an image.";
+  cvReady = true;
+  setStatus('OpenCV ready — upload an image.', 'ok');
+  const pill = document.getElementById('cvPill');
+  const txt  = document.getElementById('cvPillText');
+  if (pill) pill.classList.add('ready');
+  if (txt)  txt.textContent = 'OpenCV Ready';
 
-    // ── Patch marker URL after OpenCV loads ────────────────────────────────
-    const markerURL = createMarkerBlobURL(MARKER_PATT_DATA);
-    const marker = document.querySelector('a-marker');
-    if (marker) {
-        marker.setAttribute('url', markerURL);
-        console.log("[Fix] marker.patt loaded via Blob URL:", markerURL);
-    }
+  // Flush any image uploaded before OpenCV was ready
+  if (window._pendingCanvas) {
+    if (src) src.delete();
+    src = cv.imread(window._pendingCanvas);
+    window._pendingCanvas = null;
+    setStatus('Image loaded! Click Generate.', 'go');
+  }
 }
 
-// Upload image
-document.getElementById("fileInput").addEventListener("change", function (e) {
-    let file = e.target.files[0];
-    if (!file) return;
-    let reader = new FileReader();
-    reader.onload = function (event) {
-        let img = new Image();
-        img.onload = function () {
-            let canvasInput = document.getElementById("canvasInput");
-            canvasInput.width = img.width;
-            canvasInput.height = img.height;
-            canvasInput.getContext("2d").drawImage(img, 0, 0);
+// ── Status helper ─────────────────────────────────────────────────────────────
+function setStatus(msg, ledClass) {
+  const el  = document.getElementById('status');
+  const led = document.getElementById('statusLed');
+  if (el)  el.textContent = msg;
+  if (led) led.className = 'status-led' + (ledClass ? ' ' + ledClass : '');
+}
 
-            let temp = document.createElement("canvas");
-            temp.width = img.width;
-            temp.height = img.height;
-            temp.getContext("2d").drawImage(img, 0, 0);
+// ── File upload ───────────────────────────────────────────────────────────────
+document.getElementById('fileInput').addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
 
-            if (src) src.delete();
-            src = cv.imread(temp);
-            document.getElementById("status").innerText = "Image loaded! Click Generate Features.";
-        };
-        img.src = event.target.result;
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    const img = new Image();
+    img.onload = function () {
+      // Draw original
+      const c = document.getElementById('canvasInput');
+      c.width = img.width; c.height = img.height;
+      c.getContext('2d').drawImage(img, 0, 0);
+
+      // Temp canvas for cv.imread
+      const tmp = document.createElement('canvas');
+      tmp.width = img.width; tmp.height = img.height;
+      tmp.getContext('2d').drawImage(img, 0, 0);
+
+      if (!cvReady) {
+        // Queue and wait
+        window._pendingCanvas = tmp;
+        setStatus('Image queued — waiting for OpenCV…', 'go');
+        return;
+      }
+      if (src) src.delete();
+      src = cv.imread(tmp);
+      setStatus('Image loaded! Click Generate.', 'go');
     };
-    reader.readAsDataURL(file);
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
 });
 
-// Generate features
-document.getElementById("generateBtn").addEventListener("click", function () {
-    if (!cvReady) { alert("OpenCV not ready"); return; }
-    if (!src) { alert("Upload an image first!"); return; }
+// ── Generate Features ─────────────────────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click', function () {
+  if (!cvReady) { alert('OpenCV is still loading — please wait.'); return; }
+  if (!src)     { alert('Upload an image first!'); return; }
 
-    let gray = new cv.Mat();
-    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-    cv.imshow("canvasGray", gray);
+  const gray        = new cv.Mat();
+  const keypoints   = new cv.KeyPointVector();
+  const descriptors = new cv.Mat();
+  const orb         = new cv.ORB();
+  const output      = new cv.Mat();
+  const mask        = new cv.Mat();
 
-    let keypoints = new cv.KeyPointVector();
-    let descriptors = new cv.Mat();
-    let orb = new cv.ORB();
-    orb.detectAndCompute(gray, new cv.Mat(), keypoints, descriptors);
+  // Convert to grayscale and show
+  cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+  cv.imshow('canvasGray', gray);
 
-    let output = new cv.Mat();
-    cv.drawKeypoints(src, keypoints, output, [255, 0, 0, 255]);
-    cv.imshow("canvasOutput", output);
+  // Detect ORB keypoints
+  orb.detectAndCompute(gray, mask, keypoints, descriptors);
 
-    let count = keypoints.size();
+  // Draw keypoints on output
+  cv.drawKeypoints(src, keypoints, output, [255, 60, 0, 255]);
+  cv.imshow('canvasOutput', output);
 
-    document.getElementById("cube").setAttribute("visible", false);
-    document.getElementById("sphere").setAttribute("visible", false);
-    document.getElementById("cone").setAttribute("visible", false);
+  const count = keypoints.size();
+  setStatus('Detected ' + count + ' ORB keypoints.', 'ok');
 
-    if (count < 100) {
-        document.getElementById("cube").setAttribute("visible", true);
-    } else if (count < 300) {
-        document.getElementById("sphere").setAttribute("visible", true);
-    } else {
-        document.getElementById("cone").setAttribute("visible", true);
-    }
+  // Show result card
+  document.getElementById('featCount').textContent = count;
+  document.getElementById('featResult').style.display = 'flex';
 
-    document.getElementById("status").innerText = `Detected ${count} features`;
+  // Determine shape label
+  let shapeName;
+  if      (count < 100)  shapeName = 'Cube';
+  else if (count < 300)  shapeName = 'Sphere';
+  else                   shapeName = 'Cone';
+  document.getElementById('featShape').textContent = shapeName;
 
-    gray.delete();
-    keypoints.delete();
-    descriptors.delete();
-    output.delete();
+  // Cleanup
+  gray.delete(); keypoints.delete(); descriptors.delete();
+  output.delete(); mask.delete();
 });
 
-document.getElementById("saveGrayBtn").addEventListener("click", function () {
-    saveImage("canvasGray", "grayscale.png");
-});
-
-document.getElementById("saveOrbBtn").addEventListener("click", function () {
-    saveImage("canvasOutput", "orb_features.png");
-});
+// ── Save buttons ──────────────────────────────────────────────────────────────
+function saveCanvas(id, filename) {
+  const c = document.getElementById(id);
+  if (!c || c.width === 0) { alert('Nothing to save — run Generate first.'); return; }
+  const a = document.createElement('a');
+  a.download = filename;
+  a.href = c.toDataURL('image/png');
+  a.click();
+}
+document.getElementById('saveGrayBtn').addEventListener('click', () => saveCanvas('canvasGray',   'grayscale.png'));
+document.getElementById('saveOrbBtn').addEventListener('click',  () => saveCanvas('canvasOutput', 'orb_features.png'));

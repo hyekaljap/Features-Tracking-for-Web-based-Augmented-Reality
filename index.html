@@ -1,93 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Feature-based Tracker</title>
-
-    <link rel="stylesheet" href="style.css">
-
-    <!--Three.js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r120/three.js"></script>
-
-    <!--Ar.js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.2.2/aframe-ar.min.js"></script>
-
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Feature Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div class="container">
 
-        <h1>AR Feature-based Marker Tracker</h1>
-        <p id="status">Loading OpenCV...</p>
-        </p>
+<div class="app-shell">
 
-        <!-- Controls -->
-        <div class="controls">
-            <input type="file" id="fileInput" accept="image/*">
-            <button id="generateBtn">Generate Features</button>
-        </div>
-
-        <!-- Image Processing -->
-        <h2>Image Processing</h2>
-
-        <div class="canvas-grid">
-
-            <div>
-                <h3>Original</h3>
-                <canvas id="canvasInput"></canvas>
-            </div>
-
-            <div>
-                <h3>Grayscale</h3>
-                <canvas id="canvasGray"></canvas>
-                <button id="saveGrayBtn">Save Grayscale</button>
-            </div>
-
-            <div>
-                <h3>ORB Features</h3>
-                <canvas id="canvasOutput"></canvas>
-                <button id="saveOrbBtn">Save ORB Features</button>
-            </div>
-
-        </div>
-
-        <!-- AR -->
-        <h2>AR Scene</h2>
-
-        <div class="ar-container">
-            <div class="ar-wrapper">
-                <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-
-                    <a-marker type="pattern" url=""  id="arMarker">
-
-                        <a-box id="cube" position="0 0.5 0" color="#4CC3D9"></a-box>
-
-                        <a-sphere id="sphere" position="0 0.5 0"
-                                  radius="0.4" color="#EF2D5E"
-                                  visible="false"></a-sphere>
-
-                        <a-cone id="cone" position="0 0.5 0"
-                                radius-bottom="0.4" height="0.8"
-                                color="#FFC65D"
-                                visible="false"></a-cone>
-
-                    </a-marker>
-
-                    <a-entity camera></a-entity>
-                </a-scene>
-            </div>
-        </div>
-
+  <!-- ── TOP BAR ── -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-pip"></div>
+      <span class="brand-name">AR<span class="brand-accent">TRACK</span></span>
     </div>
+    <div id="cvPill" class="status-pill">
+      <span class="pill-dot"></span>
+      <span id="cvPillText">OpenCV loading…</span>
+    </div>
+  </header>
 
+  <!-- ── TWO-COLUMN WORKSPACE ── -->
+  <div class="workspace">
 
-    <!--OpenCV.js-->
-     <script async src="opencv.js" onload="onOpenCvReady()"></script>
+    <!-- ═══ LEFT: IMAGE PROCESSING ═══ -->
+    <section class="panel">
+      <div class="panel-header">
+        <span class="panel-tag">01</span>
+        <span class="panel-title">Image Processing</span>
+      </div>
 
-     <!-- JS LAST -->
-    <script src="script.js"></script>
-    <script type="module" src="main.js"></script>
+      <div class="control-row">
+        <label class="btn btn-upload" for="fileInput">
+          &#8679; Upload Image
+          <input type="file" id="fileInput" accept="image/*" hidden>
+        </label>
+        <button class="btn btn-generate" id="generateBtn">&#9670; Generate</button>
+      </div>
+
+      <div class="status-bar">
+        <span class="status-led" id="statusLed"></span>
+        <span id="status">Waiting for OpenCV…</span>
+      </div>
+
+      <div class="canvas-trio">
+        <div class="canvas-cell">
+          <div class="cell-label">Original</div>
+          <canvas id="canvasInput"></canvas>
+        </div>
+        <div class="canvas-cell">
+          <div class="cell-label">Grayscale</div>
+          <canvas id="canvasGray"></canvas>
+          <button class="btn btn-save" id="saveGrayBtn">&#8595; Save</button>
+        </div>
+        <div class="canvas-cell">
+          <div class="cell-label">ORB Features</div>
+          <canvas id="canvasOutput"></canvas>
+          <button class="btn btn-save" id="saveOrbBtn">&#8595; Save</button>
+        </div>
+      </div>
+
+      <div class="feat-result" id="featResult" style="display:none">
+        <span class="feat-num" id="featCount">0</span>
+        <span class="feat-label">keypoints →</span>
+        <span class="feat-shape" id="featShape">—</span>
+      </div>
+
+      <div class="legend">
+        <div class="legend-title">3D Object Rules</div>
+        <div class="legend-row"><span class="lbullet c1"></span>&lt; 100 pts → <b>Cube</b></div>
+        <div class="legend-row"><span class="lbullet c2"></span>100–299 pts → <b>Sphere</b></div>
+        <div class="legend-row"><span class="lbullet c3"></span>≥ 300 pts → <b>Cone</b></div>
+      </div>
+    </section>
+
+    <!-- ═══ RIGHT: AR SCENE ═══ -->
+    <section class="panel">
+      <div class="panel-header">
+        <span class="panel-tag">02</span>
+        <span class="panel-title">AR Scene</span>
+      </div>
+
+      <!-- Camera + shape controls -->
+      <div class="control-row">
+        <button class="btn btn-cam"  id="startCameraBtn">&#9654; Start Camera</button>
+        <button class="btn btn-stop" id="stopTrackBtn" disabled>&#9632; Stop Track</button>
+        <div class="override-group">
+          <span class="override-label">Shape:</span>
+          <button class="ovr-btn active" data-shape="ar-box">Cube</button>
+          <button class="ovr-btn" data-shape="ar-sphere">Sphere</button>
+          <button class="ovr-btn" data-shape="ar-cone">Cone</button>
+          <button class="ovr-btn" data-shape="ar-torus">Torus</button>
+        </div>
+      </div>
+
+      <!-- AR viewport -->
+      <div class="ar-wrap">
+
+        <!-- Placeholder — sits on top until camera starts -->
+        <div class="ar-placeholder" id="arPlaceholder">
+          <div class="ph-icon">&#9728;</div>
+          <p>Press <b>Start Camera</b> to activate webcam</p>
+          <p class="ph-hint">Requires HTTPS or localhost &nbsp;·&nbsp; Allow webcam when prompted</p>
+          <p class="ph-hint">Then point at your <b>printed</b> A4 colour marker</p>
+        </div>
+
+        <!-- HUD — shown when camera is active -->
+        <div class="ar-hud" id="arHud" style="display:none">
+          <span class="hud-dot" id="hudDot"></span>
+          <span id="hudText">Searching for marker…</span>
+        </div>
+
+        <!-- a-scene is INJECTED here on button click by main.js -->
+        <div id="arCanvas"></div>
+
+      </div>
+
+      <div class="info-box">
+        <div class="info-title">How to use</div>
+        <ol class="info-list">
+          <li>Upload your image and click <b>Generate</b> to extract features</li>
+          <li>Print the UTM Main Gate image on A4 coloured paper</li>
+          <li>Click <b>Start Camera</b> and allow webcam access</li>
+          <li>Hold the printed marker in front of the camera — the 3D object appears!</li>
+        </ol>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Scripts — A-Frame + AR.js must be loaded BEFORE main.js -->
+<script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+<script async src="opencv.js" onload="onOpenCvReady()"></script>
+<script src="script.js"></script>
+<script src="main.js"></script>
+
 </body>
 </html>
